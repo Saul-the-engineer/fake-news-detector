@@ -11,15 +11,35 @@ name = "fake-news-detector"
 authors = [{ name = "Saul Ramirez", email = "some-email@gmail.com" }]
 description = "My package description"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 keywords = ["one", "two"]
 license = { text = "MIT" }
 classifiers = ["Programming Language :: Python :: 3"]
-dependencies = ["numpy", 'importlib-metadata; python_version<"3.8"']
+dependencies = [
+    "numpy",
+    "pandas",
+    'importlib-metadata; python_version<"3.8"',
+    "fastapi",
+    "mlflow",
+    "scikit-learn",
+    "uvicorn",
+]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov"]
+test = [
+    "pytest",
+    "pytest-cov",
+    "gensim",
+    "matplotlib",
+    "seaborn",
+    "plotly",
+    "editdistance",
+    "vaderSentiment",
+    "shap",
+    "transformers",
+    "vadersentiment",
+]
 release = ["build", "twine"]
 static-code-qa = ["pre-commit"]
 dev = ["fake-news-detector[test,release,static-code-qa]"]
