@@ -1,0 +1,10 @@
+paths:
+  raw_data:
+    train: data/raw/train.tsv
+    val: data/raw/val.tsv
+    test: data/raw/test.tsv
+  processed_data_dir: data/processed
+  credit_bins: configs/credit_bins.json
+
+credit_binning:
+  n_bins: 10

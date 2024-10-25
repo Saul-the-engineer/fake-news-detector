@@ -1,7 +1,7 @@
 import json
 from typing import List
 
-from fake_news.utils.features import Datapoint
+from features.features import Datapoint
 
 
 def read_json_data(datapath: str) -> List[Datapoint]:

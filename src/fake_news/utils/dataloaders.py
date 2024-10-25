@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from transformers import RobertaTokenizerFast
 
-from fake_news.utils.features import Datapoint
+from features.features import Datapoint
 
 
 class FakeNewsTorchDataset(torch.utils.data.Dataset):
