@@ -167,7 +167,6 @@ def compute_bin_idx(val: float, bins: List[float]) -> int:
         if val <= bin_val:
             return idx
 
-
 # NOTE: Making sure that all normalization operations preserve immutability of inputs
 def normalize_labels(datapoints: List[Dict]) -> List[Dict]:
     normalized_datapoints = []

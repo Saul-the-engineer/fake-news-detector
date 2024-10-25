@@ -1,12 +1,15 @@
+# pylint: disable=W0105
+"""Compute optimal credit bins from training data."""
 import argparse
 import json
 import logging
 import os
 from pathlib import Path
+from typing import Dict
 
 import pandas as pd
 
-from src.fake_news.features.credit_binning import CreditBinComputer
+from features.credit_binning import CreditBinComputer
 
 logging.basicConfig(
     format="%(levelname)s - %(asctime)s - %(filename)s - %(message)s",
@@ -53,12 +56,20 @@ def main():
     train_df = pd.read_json(args.train_data_path, orient="records")
     
     # Compute optimal bins
+    LOGGER.info("Computing optimal credit bins")
     bin_computer = CreditBinComputer(n_bins=args.n_bins)
     optimal_credit_bins = bin_computer.compute_optimal_bins(train_df)
     
     # Save results
+    LOGGER.info("Saving computed bins")
     save_bins(optimal_credit_bins, args.output_path)
     LOGGER.info("Done!")
 
 if __name__ == "__main__":
+    """
+    Script ran in the following way:
+    python scripts/compute_credit_bins.py \
+        --train-data-path data/processed/train.json \
+        --output-path data/processed/credit_bins.json
+    """
     main()

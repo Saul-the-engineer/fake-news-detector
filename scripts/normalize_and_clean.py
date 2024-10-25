@@ -1,3 +1,6 @@
+# pylint: disable=W0105
+"""Reads raw data, normalizes and cleans it, and saves the cleaned data."""
+
 import argparse
 import csv
 import json
@@ -8,7 +11,7 @@ from typing import (
     List,
 )
 
-from src.fake_news.features.preprocessing import (
+from features.preprocessing_utils import (
     Datapoint,
     normalize_and_clean,
 )
@@ -54,32 +57,53 @@ def save_datapoints(datapoints: List[Dict], filepath: str):
         json.dump(datapoints, f, indent=2)
 
 def main():
+    # Read arguments
+    LOGGER.info("Reading arguments...")
     args = read_args()
     
     # Read data
+    LOGGER.info("Reading data...")
     train_datapoints = read_datapoints(args.train_data_path)
+    LOGGER.info(f"Read {len(train_datapoints)} training datapoints")
     val_datapoints = read_datapoints(args.val_data_path)
+    LOGGER.info(f"Read {len(val_datapoints)} validation datapoints")
     test_datapoints = read_datapoints(args.test_data_path)
+    LOGGER.info(f"Read {len(test_datapoints)} test datapoints")
 
     # Clean data
     LOGGER.info("Normalizing and cleaning data...")
     train_datapoints = normalize_and_clean(train_datapoints)
+    LOGGER.info(f"Cleaned {len(train_datapoints)} training datapoints")
     val_datapoints = normalize_and_clean(val_datapoints)
+    LOGGER.info(f"Cleaned {len(val_datapoints)} validation datapoints")
     test_datapoints = normalize_and_clean(test_datapoints)
+    LOGGER.info(f"Cleaned {len(test_datapoints)} test datapoints")
 
     # Save cleaned data
+    LOGGER.info("Saving cleaned data...")
     save_datapoints(
         train_datapoints, 
         os.path.join(args.output_dir, "cleaned_train_data.json")
     )
+    LOGGER.info(f"Saved Training data to {os.path.join(args.output_dir, 'cleaned_train_data.json')}")
     save_datapoints(
         val_datapoints, 
         os.path.join(args.output_dir, "cleaned_val_data.json")
     )
+    LOGGER.info(f"Saved Validation data to {os.path.join(args.output_dir, 'cleaned_val_data.json')}")
     save_datapoints(
         test_datapoints, 
         os.path.join(args.output_dir, "cleaned_test_data.json")
     )
+    LOGGER.info(f"Saved Test data to {os.path.join(args.output_dir, 'cleaned_test_data.json')}")
 
 if __name__ == "__main__":
+    """
+    Script ran in the following way:
+    python scripts/normalize_and_clean.py \                                                                                                                                                                                                                                                                                                                                                                 1 ↵
+        --train-data-path data/raw/train.tsv \
+        --val-data-path data/raw/val.tsv \
+        --test-data-path data/raw/test.tsv \
+        --output-dir data/processed
+    """
     main()

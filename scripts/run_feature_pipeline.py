@@ -1,3 +1,5 @@
+# pylint: disable=W0105
+"""Run complete feature engineering pipeline."""
 import argparse
 import logging
 import os
@@ -96,4 +98,14 @@ def main():
     LOGGER.info("Feature engineering pipeline completed successfully!")
 
 if __name__ == "__main__":
+    """
+    Script ran in the following way:
+    python scripts/run_feature_pipeline.py \
+        --raw-train-data data/raw/train.tsv \
+        --raw-val-data data/raw/val.tsv \
+        --raw-test-data data/raw/test.tsv \
+        --processed-data-dir data/processed \
+        --credit-bins-path data/processed/credit_bins.json
+    """
+
     main()
