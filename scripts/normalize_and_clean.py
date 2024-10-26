@@ -48,7 +48,8 @@ def read_datapoints(datapath: str) -> List[Dict]:
                 "justification",
             ],
         )
-        return [row for row in reader]
+        # Filter out rows with any missing values
+        return [row for row in reader if all(row[field] for field in reader.fieldnames)]
 
 def save_datapoints(datapoints: List[Dict], filepath: str):
     LOGGER.info(f"Saving cleaned data to {filepath}")
