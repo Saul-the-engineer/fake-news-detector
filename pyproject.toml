@@ -41,7 +41,7 @@ test = [
   "vadersentiment",
 ]
 release = ["build", "twine"]
-static-code-qa = ["pre-commit"]
+static-code-qa = ["pre-commit", "flake8", "black", "isort", "pylint", "radon", "ruff"]
 dev = ["fake-news-detector[test,release,static-code-qa]"]
 
 # docs: https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html#dynamic-metadata

@@ -1,4 +1,5 @@
 """Builds a tree-based model for fake news detection."""
+
 import logging
 import os
 import pickle
@@ -9,19 +10,20 @@ from typing import (
 )
 
 import numpy as np
+from joblib import dump
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
     f1_score,
+    precision_score,
+    recall_score,
     roc_auc_score,
 )
 
 from fake_news.models.base import Model
-from features.features import (
-    Datapoint,
-    TreeFeaturizer,
-)
+from features.preprocessing_utils import Datapoint
+from features.tree_featurizer import TreeFeaturizer
 
 logging.basicConfig(
     format="%(levelname)s - %(asctime)s - %(filename)s - %(message)s",
@@ -34,14 +36,8 @@ class RandomForestModel(Model):
     def __init__(self, config: Optional[Dict] = None):
         self.config = config
         model_cache_path = os.path.join(config["model_output_path"], "model.pkl")
-        self.featurizer = TreeFeaturizer(
-            os.path.join(config["featurizer_output_path"], "featurizer.pkl"), config
-        )
-        if (
-            "evaluate" in config
-            and config["evaluate"]
-            and not os.path.exists(model_cache_path)
-        ):
+        self.featurizer = TreeFeaturizer(os.path.join(config["featurizer_output_path"], "featurizer.pkl"), config)
+        if "evaluate" in config and config["evaluate"] and not os.path.exists(model_cache_path):
             raise ValueError("Model output path does not exist but in `evaluate` mode!")
         if model_cache_path and os.path.exists(model_cache_path):
             LOGGER.info("Loading model from cache...")
@@ -65,22 +61,20 @@ class RandomForestModel(Model):
                 "wb",
             ) as f:
                 pickle.dump(feature_names, f)
-            self.featurizer.save(
-                os.path.join(self.config["featurizer_output_path"], "featurizer.pkl")
-            )
+            self.featurizer.save(os.path.join(self.config["featurizer_output_path"], "featurizer.pkl"))
         train_labels = [datapoint.label for datapoint in train_datapoints]
         LOGGER.info("Featurizing data from scratch...")
         train_features = self.featurizer.featurize(train_datapoints)
         self.model.fit(train_features, train_labels)
 
-    def compute_metrics(
-        self, eval_datapoints: List[Datapoint], split: Optional[str] = None
-    ) -> Dict:
+    def compute_metrics(self, eval_datapoints: List[Datapoint], split: Optional[str] = None) -> Dict:
         expected_labels = [datapoint.label for datapoint in eval_datapoints]
         predicted_proba = self.predict(eval_datapoints)
         predicted_labels = np.argmax(predicted_proba, axis=1)
         accuracy = accuracy_score(expected_labels, predicted_labels)
         f1 = f1_score(expected_labels, predicted_labels)
+        precision = precision_score(expected_labels, predicted_labels)
+        recall = recall_score(expected_labels, predicted_labels)
         auc = roc_auc_score(expected_labels, predicted_proba[:, 1])
         conf_mat = confusion_matrix(expected_labels, predicted_labels)
         tn, fp, fn, tp = conf_mat.ravel()
@@ -88,6 +82,8 @@ class RandomForestModel(Model):
         return {
             f"{split_prefix} f1": f1,
             f"{split_prefix} accuracy": accuracy,
+            f"{split_prefix} precision": precision,
+            f"{split_prefix} recall": recall,
             f"{split_prefix} auc": auc,
             f"{split_prefix} true negative": tn,
             f"{split_prefix} false negative": fn,
@@ -104,12 +100,4 @@ class RandomForestModel(Model):
 
     def save(self, model_cache_path: str) -> None:
         LOGGER.info("Saving model to disk...")
-        # TODO: Save using joblib
-        with open(model_cache_path, "wb") as f:
-            pickle.dump(self.model, f)
-    def save(self, model_cache_path: str) -> None:
-        LOGGER.info("Saving model to disk...")
-        # TODO: Save using joblib
-        with open(model_cache_path, "wb") as f:
-            pickle.dump(self.model, f)
-            pickle.dump(self.model, f)
+        dump(self.model, model_cache_path)

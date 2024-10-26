@@ -1,7 +1,7 @@
 import json
 from typing import List
 
-from features.features import Datapoint
+from features.preprocessing_utils import Datapoint
 
 
 def read_json_data(datapath: str) -> List[Datapoint]:

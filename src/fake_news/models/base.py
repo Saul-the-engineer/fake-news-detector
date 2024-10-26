@@ -10,7 +10,7 @@ from typing import (
 
 import numpy as np
 
-from features.features import Datapoint
+from features.preprocessing_utils import Datapoint
 
 
 class Model(ABC):
@@ -42,9 +42,7 @@ class Model(ABC):
         pass
 
     @abstractmethod
-    def compute_metrics(
-        self, eval_datapoints: List[Datapoint], split: Optional[str] = None
-    ) -> Dict:
+    def compute_metrics(self, eval_datapoints: List[Datapoint], split: Optional[str] = None) -> Dict:
         """
         Compute a set of model-specifc metrics on the provided set of datapoints.
         :param eval_datapoints: Datapoints to compute metrics for
@@ -61,4 +59,3 @@ class Model(ABC):
         :return: Dictionary containing the model parameters
         """
         pass
-
