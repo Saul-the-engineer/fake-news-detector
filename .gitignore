@@ -180,3 +180,4 @@ dist
 *.idea
 **/mlruns/*
 model_checkpoints/*
+models/*

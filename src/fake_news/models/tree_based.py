@@ -22,6 +22,7 @@ from sklearn.metrics import (
 )
 
 from fake_news.models.base import Model
+from fake_news.utils.convert_to_standard_types import convert_to_standard_types
 from features.preprocessing_utils import Datapoint
 from features.tree_featurizer import TreeFeaturizer
 
@@ -79,7 +80,7 @@ class RandomForestModel(Model):
         conf_mat = confusion_matrix(expected_labels, predicted_labels)
         tn, fp, fn, tp = conf_mat.ravel()
         split_prefix = "" if split is None else split
-        return {
+        val_metrics = {
             f"{split_prefix} f1": f1,
             f"{split_prefix} accuracy": accuracy,
             f"{split_prefix} precision": precision,
@@ -90,6 +91,9 @@ class RandomForestModel(Model):
             f"{split_prefix} false positive": fp,
             f"{split_prefix} true positive": tp,
         }
+        val_metrics = convert_to_standard_types(val_metrics)
+
+        return val_metrics
 
     def predict(self, datapoints: List[Datapoint]) -> np.array:
         features = self.featurizer.featurize(datapoints)
