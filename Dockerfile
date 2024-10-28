@@ -1,17 +1,20 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.9
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy local files into the container
-COPY . /app/
+# Copy requirements.txt to the container
+COPY requirements.txt .
 
-# Install make to use it for running the Makefile
-RUN apt-get update && apt-get install -y make && rm -rf /var/lib/apt/lists/*
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the install target from the Makefile
-RUN make install
+# Copy the current directory contents into the container at /app
+COPY . .
 
-# Set the entry point for the container
-CMD ["python"]
+# Expose the port that FastAPI runs on
+EXPOSE 8000
+
+# Run the FastAPI application with Uvicorn
+CMD ["uvicorn", "main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]

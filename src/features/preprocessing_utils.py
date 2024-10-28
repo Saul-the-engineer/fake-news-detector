@@ -26,31 +26,13 @@ from fake_news.utils.constants import (
     PARTY_AFFILIATIONS,
     SIX_WAY_LABEL_TO_BINARY,
 )
+from fake_news.utils.construct_datapoint import Datapoint
 
 logging.basicConfig(
     format="%(levelname)s - %(asctime)s - %(filename)s - %(message)s",
     level=logging.DEBUG,
 )
 LOGGER = logging.getLogger(__name__)
-
-
-class Datapoint(BaseModel):
-    id: Optional[str]
-    statement_json: Optional[str]
-    label: Optional[bool]
-    statement: str
-    subject: Optional[str]
-    speaker: Optional[str]
-    speaker_title: Optional[str]
-    state_info: Optional[str]
-    party_affiliation: Optional[str]
-    barely_true_count: float
-    false_count: float
-    half_true_count: float
-    mostly_true_count: float
-    pants_fire_count: float
-    context: Optional[str]
-    justification: Optional[str]
 
 
 # NOTE: Making sure that all normalization operations preserve immutability of inputs

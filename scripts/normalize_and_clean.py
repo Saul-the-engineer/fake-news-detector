@@ -11,10 +11,8 @@ from typing import (
     List,
 )
 
-from features.preprocessing_utils import (
-    Datapoint,
-    normalize_and_clean,
-)
+from fake_news.utils.construct_datapoint import Datapoint
+from features.preprocessing_utils import normalize_and_clean
 
 logging.basicConfig(
     format="%(levelname)s - %(asctime)s - %(filename)s - %(message)s",
@@ -22,17 +20,15 @@ logging.basicConfig(
 )
 LOGGER = logging.getLogger(__name__)
 
+
 def read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--train-data-path", type=str, required=True,
-                      help="Path to raw training data")
-    parser.add_argument("--val-data-path", type=str, required=True,
-                      help="Path to raw validation data")
-    parser.add_argument("--test-data-path", type=str, required=True,
-                      help="Path to raw test data")
-    parser.add_argument("--output-dir", type=str, required=True,
-                      help="Directory to save cleaned data")
+    parser.add_argument("--train-data-path", type=str, required=True, help="Path to raw training data")
+    parser.add_argument("--val-data-path", type=str, required=True, help="Path to raw validation data")
+    parser.add_argument("--test-data-path", type=str, required=True, help="Path to raw test data")
+    parser.add_argument("--output-dir", type=str, required=True, help="Directory to save cleaned data")
     return parser.parse_args()
+
 
 def read_datapoints(datapath: str) -> List[Dict]:
     LOGGER.info(f"Reading data from {datapath}")
@@ -41,15 +37,27 @@ def read_datapoints(datapath: str) -> List[Dict]:
             f,
             delimiter="\t",
             fieldnames=[
-                "id", "statement_json", "label", "statement", "subject",
-                "speaker", "speaker_title", "state_info", "party_affiliation",
-                "barely_true_count", "false_count", "half_true_count",
-                "mostly_true_count", "pants_fire_count", "context",
+                "id",
+                "statement_json",
+                "label",
+                "statement",
+                "subject",
+                "speaker",
+                "speaker_title",
+                "state_info",
+                "party_affiliation",
+                "barely_true_count",
+                "false_count",
+                "half_true_count",
+                "mostly_true_count",
+                "pants_fire_count",
+                "context",
                 "justification",
             ],
         )
         # Filter out rows with any missing values
         return [row for row in reader if all(row[field] for field in reader.fieldnames)]
+
 
 def save_datapoints(datapoints: List[Dict], filepath: str):
     LOGGER.info(f"Saving cleaned data to {filepath}")
@@ -57,11 +65,12 @@ def save_datapoints(datapoints: List[Dict], filepath: str):
     with open(filepath, "w") as f:
         json.dump(datapoints, f, indent=2)
 
+
 def main():
     # Read arguments
     LOGGER.info("Reading arguments...")
     args = read_args()
-    
+
     # Read data
     LOGGER.info("Reading data...")
     train_datapoints = read_datapoints(args.train_data_path)
@@ -82,21 +91,13 @@ def main():
 
     # Save cleaned data
     LOGGER.info("Saving cleaned data...")
-    save_datapoints(
-        train_datapoints, 
-        os.path.join(args.output_dir, "cleaned_train_data.json")
-    )
+    save_datapoints(train_datapoints, os.path.join(args.output_dir, "cleaned_train_data.json"))
     LOGGER.info(f"Saved Training data to {os.path.join(args.output_dir, 'cleaned_train_data.json')}")
-    save_datapoints(
-        val_datapoints, 
-        os.path.join(args.output_dir, "cleaned_val_data.json")
-    )
+    save_datapoints(val_datapoints, os.path.join(args.output_dir, "cleaned_val_data.json"))
     LOGGER.info(f"Saved Validation data to {os.path.join(args.output_dir, 'cleaned_val_data.json')}")
-    save_datapoints(
-        test_datapoints, 
-        os.path.join(args.output_dir, "cleaned_test_data.json")
-    )
+    save_datapoints(test_datapoints, os.path.join(args.output_dir, "cleaned_test_data.json"))
     LOGGER.info(f"Saved Test data to {os.path.join(args.output_dir, 'cleaned_test_data.json')}")
+
 
 if __name__ == "__main__":
     """

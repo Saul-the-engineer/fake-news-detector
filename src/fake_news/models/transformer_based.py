@@ -21,8 +21,8 @@ from torch.utils.data import DataLoader
 from transformers import RobertaForSequenceClassification
 
 from fake_news.models.base import Model
+from fake_news.utils.construct_datapoint import Datapoint
 from fake_news.utils.dataloaders import FakeNewsTorchDataset
-from features.features import Datapoint
 
 
 class RobertaModule(pl.LightningModule):
@@ -133,9 +133,7 @@ class RobertaModel(Model):
             batch_size=self.config["batch_size"],
             pin_memory=True,
         )
-        val_dataloader = DataLoader(
-            val_data, shuffle=False, batch_size=16, pin_memory=True
-        )
+        val_dataloader = DataLoader(val_data, shuffle=False, batch_size=16, pin_memory=True)
 
         self.trainer.fit(
             self.model,
@@ -143,9 +141,7 @@ class RobertaModel(Model):
             val_dataloaders=val_dataloader,
         )
 
-    def compute_metrics(
-        self, eval_datapoints: List[Datapoint], split: Optional[str] = None
-    ) -> Dict:
+    def compute_metrics(self, eval_datapoints: List[Datapoint], split: Optional[str] = None) -> Dict:
         expected_labels = [datapoint.label for datapoint in eval_datapoints]
         predicted_proba = self.predict(eval_datapoints)
         predicted_labels = np.argmax(predicted_proba, axis=1)
@@ -169,9 +165,7 @@ class RobertaModel(Model):
 
     def predict(self, datapoints: List[Datapoint]) -> np.array:
         data = FakeNewsTorchDataset(self.config, datapoints)
-        dataloader = DataLoader(
-            data, batch_size=self.config["batch_size"], pin_memory=True
-        )
+        dataloader = DataLoader(data, batch_size=self.config["batch_size"], pin_memory=True)
         self.model.eval()
         predicted = []
         self.model.cuda()

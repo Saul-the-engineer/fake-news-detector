@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from transformers import RobertaTokenizerFast
 
-from features.features import Datapoint
+from fake_news.utils.construct_datapoint import Datapoint
 
 
 class FakeNewsTorchDataset(torch.utils.data.Dataset):
@@ -38,9 +38,7 @@ class FakeNewsTorchDataset(torch.utils.data.Dataset):
                     "ids": tokenized.data["input_ids"].squeeze(),
                     "type_ids": tokenized.data["token_type_ids"].squeeze(),
                     "attention_mask": tokenized.data["attention_mask"].squeeze(),
-                    "special_tokens_mask": tokenized.data[
-                        "special_tokens_mask"
-                    ].squeeze(),
+                    "special_tokens_mask": tokenized.data["special_tokens_mask"].squeeze(),
                     "label": np.array(int(datapoint.label)),
                 }
             )
@@ -50,5 +48,6 @@ class FakeNewsTorchDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.data)
+
     def __len__(self):
         return len(self.data)

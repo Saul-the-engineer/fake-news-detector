@@ -22,8 +22,8 @@ from sklearn.metrics import (
 )
 
 from fake_news.models.base import Model
+from fake_news.utils.construct_datapoint import Datapoint
 from fake_news.utils.convert_to_standard_types import convert_to_standard_types
-from features.preprocessing_utils import Datapoint
 from features.tree_featurizer import TreeFeaturizer
 
 logging.basicConfig(

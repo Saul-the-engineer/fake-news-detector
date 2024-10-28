@@ -10,7 +10,7 @@ from typing import (
 
 import numpy as np
 
-from features.preprocessing_utils import Datapoint
+from fake_news.utils.construct_datapoint import Datapoint
 
 
 class Model(ABC):

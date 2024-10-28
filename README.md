@@ -81,8 +81,8 @@ make test
 │   └── api/               # API service
 │       ├── __init__.py
 │       ├── main.py       # FastAPI application
-│       ├── models.py     # API models/schemas
-│       └── endpoints/    # API endpoints
+│       ├── routes.py     # API routes
+│       └── settings      # API settings
 │
 ├── tests/
 │   ├── fixtures.py       # Test configurations and fixtures
