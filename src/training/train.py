@@ -14,11 +14,11 @@ from typing import (
 import mlflow
 import numpy as np
 
-# from fake_news.model.transformer_based import RobertaModel
+from fake_news.models.transformer_based import RobertaModel
 from fake_news.models.tree_based import RandomForestModel
 from fake_news.utils.reader import read_json_data
 
-# import torch
+import torch
 
 
 logging.basicConfig(
@@ -44,35 +44,39 @@ def set_random_seed(val: int = 1) -> None:
     """Set the random seed for reproducibility."""
     random.seed(val)
     np.random.seed(val)
-    # # Torch-specific random-seeds
-    # torch.manual_seed(val)
-    # torch.cuda.manual_seed_all(val)
+    # Torch-specific random-seeds
+    torch.manual_seed(val)
+    torch.cuda.manual_seed_all(val)
 
 
 def get_model(config: Dict[str, Any]) -> RandomForestModel:
     """Instantiate the model based on the configuration."""
     if config["model"] == "random_forest":
         return RandomForestModel(config)
-    # Add more models here as needed
+    elif config["model"] == "roberta":
+        return RobertaModel(config)
     else:
         raise ValueError(f"Invalid model type {config['model']} provided")
 
 
 def setup_mlflow(config: Dict[str, Any], config_file: str) -> str:
     """Set up MLflow experiment and return the model output path."""
+    
     # Set up MLflow experiment
     mlflow.set_experiment(config["model"])
 
-    # Create the base directory with the current date
+    # Create a base directory with the current date and model type
     current_date = datetime.now().strftime("%Y-%m-%d")
-    model_output_path = os.path.join("models/trained/2024-10-27/random_forest", current_date, config["model"])
+    model_type = config["model"]
+    model_output_path = os.path.join("models", "trained", current_date, model_type)
 
     # Make the directory if it doesn't exist
     os.makedirs(model_output_path, exist_ok=True)
 
-    # Copy the configuration file
+    # Copy the configuration file to the run directory
     copy(config_file, os.path.join(model_output_path, "config.json"))
 
+    # Return the path where model files will be saved
     return model_output_path
 
 
@@ -100,7 +104,7 @@ def train_model(
 
 
 def evaluate_model(
-    model: RandomForestModel, data: Dict[str, Any], model_output_path: str
+    model: Any, data: Dict[str, Any], model_output_path: str
 ) -> Dict[str, Dict[str, float]]:
     logs_dir = os.path.join(model_output_path, "logs")
     os.makedirs(logs_dir, exist_ok=True)
@@ -111,6 +115,12 @@ def evaluate_model(
     test_metrics = model.compute_metrics(data["test"], split="test")
     LOGGER.info(f"Validation metrics: {val_metrics}")
     LOGGER.info(f"Test metrics: {test_metrics}")
+
+    # Convert metrics to JSON-serializable format
+    val_metrics = {k: (int(v) if isinstance(v, np.integer) else float(v) if isinstance(v, np.floating) else v)
+                   for k, v in val_metrics.items()}
+    test_metrics = {k: (int(v) if isinstance(v, np.integer) else float(v) if isinstance(v, np.floating) else v)
+                    for k, v in test_metrics.items()}
 
     # Save metrics as JSON
     metrics_dir = os.path.join(model_output_path, "metrics")

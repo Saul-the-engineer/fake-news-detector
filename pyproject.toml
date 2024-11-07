@@ -18,7 +18,10 @@ classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
   "numpy",
   "pandas",
-  'importlib-metadata; python_version<"3.8"',
+  "pytorch-lightning==1.1.2",
+  "transformers",
+  "pydantic",
+  "pydantic-settings",
   "fastapi",
   "mlflow",
   "scikit-learn",

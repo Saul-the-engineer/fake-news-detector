@@ -10,7 +10,6 @@ from typing import (
 )
 
 import numpy as np
-from joblib import dump
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
@@ -23,7 +22,6 @@ from sklearn.metrics import (
 
 from fake_news.models.base import Model
 from fake_news.utils.construct_datapoint import Datapoint
-from fake_news.utils.convert_to_standard_types import convert_to_standard_types
 from features.tree_featurizer import TreeFeaturizer
 
 logging.basicConfig(
@@ -91,7 +89,6 @@ class RandomForestModel(Model):
             f"{split_prefix} false positive": fp,
             f"{split_prefix} true positive": tp,
         }
-        val_metrics = convert_to_standard_types(val_metrics)
 
         return val_metrics
 
@@ -103,5 +100,5 @@ class RandomForestModel(Model):
         return self.model.get_params()
 
     def save(self, model_cache_path: str) -> None:
-        LOGGER.info("Saving model to disk...")
-        dump(self.model, model_cache_path)
+        with open(model_cache_path, "wb") as f:
+            pickle.dump(self.model, f)

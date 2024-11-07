@@ -31,61 +31,53 @@ class RobertaModule(pl.LightningModule):
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         full_model_output_path = os.path.join(base_dir, config["model_output_path"])
         self.config = config
-        self.classifier = RobertaForSequenceClassification.from_pretrained(
-            config["type"], cache_dir=full_model_output_path
-        )
-
-    def forward(
-        self,
-        input_ids: np.array,
-        attention_mask: np.array,
-        token_type_ids: np.array,
-        labels: np.array,
-    ):
-        output = self.classifier(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            labels=labels,
-        )
+        self.classifier = RobertaForSequenceClassification.from_pretrained(config["type"],
+                                                                           cache_dir=full_model_output_path,)
+    
+    def forward(self,
+                input_ids: np.array,
+                attention_mask: np.array,
+                token_type_ids: np.array,
+                labels: np.array):
+        output = self.classifier(input_ids=input_ids,
+                                 attention_mask=attention_mask,
+                                 token_type_ids=token_type_ids,
+                                 labels=labels
+                                 )
         return output
-
+    
     def training_step(self, batch, batch_idx):
-        output = self(
-            input_ids=batch["ids"],
-            attention_mask=batch["attention_mask"],
-            token_type_ids=batch["type_ids"],
-            labels=batch["label"],
-        )
+        output = self(input_ids=batch["ids"],
+                      attention_mask=batch["attention_mask"],
+                      token_type_ids=batch["type_ids"],
+                      labels=batch["label"])
         self.log("train_loss", output[0])
         print(f"Train Loss: {output[0]}")
         return output[0]
-
+    
     def validation_step(self, batch, batch_idx):
-        output = self(
-            input_ids=batch["ids"],
-            attention_mask=batch["attention_mask"],
-            token_type_ids=batch["type_ids"],
-            labels=batch["label"],
-        )
+        output = self(input_ids=batch["ids"],
+                      attention_mask=batch["attention_mask"],
+                      token_type_ids=batch["type_ids"],
+                      labels=batch["label"])
         self.log("val_loss", output[0])
         return output[0]
-
-    def validation_epoch_end(self, outputs: List[float]) -> None:
+    
+    def validation_epoch_end(
+        self, outputs: List[float]
+    ) -> None:
         avg_val_loss = float(sum(outputs) / len(outputs))
         mlflow.log_metric("avg_val_loss", avg_val_loss, self.current_epoch)
         print(f"Avg val loss: {avg_val_loss}")
-
+    
     def test_step(self, batch, batch_idx):
-        output = self(
-            input_ids=batch["ids"],
-            attention_mask=batch["attention_mask"],
-            token_type_ids=batch["type_ids"],
-            labels=batch["label"],
-        )
+        output = self(input_ids=batch["ids"],
+                      attention_mask=batch["attention_mask"],
+                      token_type_ids=batch["type_ids"],
+                      labels=batch["label"])
         self.log("test_loss", output[0])
         return output[0]
-
+    
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config["learning_rate"])
         return optimizer
@@ -145,7 +137,7 @@ class RobertaModel(Model):
         expected_labels = [datapoint.label for datapoint in eval_datapoints]
         predicted_proba = self.predict(eval_datapoints)
         predicted_labels = np.argmax(predicted_proba, axis=1)
-        # TODO (mihail): Refactor this section below with repeated in RF model
+        # TODO: Refactor this section below with repeated in RF model
         accuracy = accuracy_score(expected_labels, predicted_labels)
         f1 = f1_score(expected_labels, predicted_labels)
         auc = roc_auc_score(expected_labels, predicted_proba[:, 1])
@@ -182,7 +174,7 @@ class RobertaModel(Model):
 
     def get_params(self) -> Dict:
         return {}
-        return torch.cat(predicted, axis=0).cpu().detach().numpy()
 
-    def get_params(self) -> Dict:
-        return {}
+    def save(self, model_cache_path: str) -> None:
+        """Save the model to the specified path using PyTorch's save method."""
+        torch.save(self.model.state_dict(), model_cache_path)
